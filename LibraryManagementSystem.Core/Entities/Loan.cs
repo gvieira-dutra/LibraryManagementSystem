@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibraryManagementSystem.Core.Entities
 {
-    internal class Loan : BaseEntity
+    public class Loan : BaseEntity
     {
         public Loan(int userId, int bookId)
         {
