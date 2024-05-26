@@ -1,4 +1,7 @@
 ﻿using LibraryManagementSystem.API.Models;
+using LibraryManagementSystem.Application.Services.Implementation;
+using LibraryManagementSystem.Application.Services.Interfaces;
+using LibraryManagementSystem.Application.ViewModels;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,54 +10,62 @@ namespace LibraryManagementSystem.API.Controller
     [Route("api/loan")]
     public class LoanController : ControllerBase
     {
+        private readonly ILoanService _loanService;
+
+        public LoanController(ILoanService loanService)
+        {
+            _loanService = loanService;
+        }
+
         [HttpGet]
         public IActionResult LoanGetAll()
         {
-            return Ok();
+            var loans = _loanService.LoanGetAll();
+
+            return Ok(loans);
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         public IActionResult LoanGetById(int id)
         {
-            return Ok();
+            var loan = _loanService.LoanGetById(id);
+
+            return Ok(loan);
         }
 
-        [HttpGet]
+        [HttpGet("user/{id}")]
         public IActionResult LoanGetByUserId(int userId)
         {
-            return Ok();
+            var loans = _loanService.LoanGetByUserId(userId);
+
+            return Ok(loans);
         }
         
-        [HttpPost]
-        public IActionResult LoanCreate([FromBody] LoanModel newLoan)
+        [HttpPost("create")]
+        public IActionResult LoanCreate([FromBody] LoanCreateModel newLoan)
         {
             if (newLoan == null)
             {
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(LoanCreate), newLoan);
+            var id = _loanService.LoanCreate(newLoan);
+
+            return CreatedAtAction(nameof(LoanCreate), id, newLoan);
         }
 
-        [HttpPost]
-        public IActionResult LoanUpdate([FromBody] LoanModel updateLoan)
+        [HttpPost("update")]
+        public IActionResult LoanUpdate([FromBody] LoanUpdateModel updateLoan)
         {
             if(updateLoan == null)
             {
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(LoanCreate), updateLoan);
+            var id = _loanService.LoanUpdate(updateLoan);
+
+            return CreatedAtAction(nameof(LoanCreate), id, updateLoan);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult LoanEnd(int id)
-        {
-            //Look for loan 
-            //If it exists go ahead and end it 
-            // otherwise return to different page
-
-            return NoContent();
-        }
     }
 }
