@@ -7,21 +7,26 @@ using System.Threading.Tasks;
 
 namespace LibraryManagementSystem.Core.Entities
 {
-    public class Book : BaseEntity
+    public class Book(string title, string author, string iSBN, int publicationYear) : BaseEntity
     {
-        public Book(string title, string author, string iSBN, int publicationYear)
+        public string Title { get; private set; } = title;
+        public string Author { get; private set; } = author;
+        public string ISBN { get; private set; } = iSBN;
+        public BookStatus Availability { get; private set; } = BookStatus.Available;
+        public int PublicationYear { get; private set; } = publicationYear;
+
+        public void BookSetAvailable()
         {
-            Title = title;
-            Author = author;
-            ISBN = iSBN;
-            PublicationYear = publicationYear;
             Availability = BookStatus.Available;
         }
 
-        public string Title { get; private set; }
-        public string Author { get; private set; }
-        public string ISBN { get; private set; }
-        public BookStatus Availability { get; private set; }
-        public int PublicationYear { get; private set; }
+        public void BookSetUnavailable()
+        {
+            Availability = BookStatus.Unavailable;
+        }
+        public void BookSetNotInTheSystem()
+        {
+            Availability = BookStatus.NotInTheSystem;
+        }
     }
 }

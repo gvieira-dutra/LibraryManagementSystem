@@ -9,6 +9,7 @@ namespace LibraryManagementSystem.Core.Enums
     public enum BookStatus
     {
         Unavailable = 0,
-        Available = 1
+        Available = 1,
+        NotInTheSystem = 2,
     }
 }

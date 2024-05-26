@@ -6,9 +6,9 @@ namespace LibraryManagementSystem.Application.Services.Interfaces
     {
         public List<LoanViewModel> LoanGetAll();
         public LoanViewModel LoanGetById(int id);
-        public LoanViewModel LoanGetByUserId(int userId);
+        public List<LoanViewModel> LoanGetByUserId(int userId);
         public int LoanCreate(LoanCreateModel newLoan);
-        public int LoanUpdate(LoanViewModel updateLoan);
-        public void LoanDelete(int id);
+        public int LoanUpdate(LoanUpdateModel updateLoan);
+
     }
 }
