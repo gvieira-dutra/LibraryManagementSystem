@@ -7,17 +7,23 @@ namespace LibraryManagementSystem.Application.Services.Implementation;
 
 public class LoanService : ILoanService
 {
-    private readonly LibraryManagementSystemDbContext _dbContext;
+    private readonly LibMgmtSysDbContext _dbContext;
 
-    public LoanService(LibraryManagementSystemDbContext dbContext)
+    public LoanService(LibMgmtSysDbContext dbContext)
     {
-        dbContext = _dbContext;
+        _dbContext = dbContext;
     }
     public List<LoanViewModel> LoanGetAll()
     {
         var loans = _dbContext.Loans;
 
-        var loansVM = loans.Select(l => new LoanViewModel(l.Id, l.UserId, l.BookId, l.LoanDate))
+        if (loans == null) return null;
+
+        var loansVM = loans.Select(l => new LoanViewModel(
+            l.Id, 
+            l.UserId, 
+            l.BookId, 
+            l.LoanStartDate))
             .ToList() ;
 
         return loansVM;
@@ -31,25 +37,25 @@ public class LoanService : ILoanService
             loan.Id,
             loan.UserId,
             loan.BookId,
-            loan.LoanDate
+            loan.LoanStartDate
             );
 
         return loanVM;
     }
 
-    public LoanViewModel LoanGetByUserId(int userId)
+    public List<LoanViewModel> LoanGetByUserId(int userId)
     {
-        var loan = _dbContext.Loans.SingleOrDefault
-    (l => l.UserId == userId);
+        var loans = _dbContext.Loans.Where(l => l.UserId == userId);
 
-        var loanVM = new LoanViewModel(
-            loan.Id,
-            loan.UserId,
-            loan.BookId,
-            loan.LoanDate
-            );
+        var loansVM = new List<LoanViewModel>();
+        loans.Select(l => new LoanViewModel(
+        l.Id,
+        l.UserId,
+        l.BookId,
+        l.LoanStartDate
+        )).ToList();
 
-        return loanVM;
+        return loansVM;
     }
 
     public int LoanCreate(LoanCreateModel newLoan)
@@ -61,18 +67,15 @@ public class LoanService : ILoanService
         return loan.Id;
     }
 
-    public int LoanUpdate(LoanViewModel updateLoan)
+    public int LoanUpdate(LoanUpdateModel updateLoan)
     {
         var loan = _dbContext.Loans.SingleOrDefault(l => l.Id == updateLoan.Id);
+
+        if (loan == null) { return 0; }
 
         loan.Update(updateLoan.IdUser, updateLoan.IdBook);
 
         return loan.Id;
     }
 
-    public void LoanDelete(int id)
-    {
-        var loan = _dbContext.Loans.SingleOrDefault(l => l.Id == id);
-        _dbContext.Loans.Remove(loan); 
-    }
 }
