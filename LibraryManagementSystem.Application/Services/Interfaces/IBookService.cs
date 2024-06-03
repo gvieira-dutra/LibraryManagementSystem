@@ -7,6 +7,7 @@ namespace LibraryManagementSystem.Application.Services.Interfaces
     {
         public List<BookViewModel>? BookGetAll(string query);
         public Book? BookGetOne(int id);
+        public int BookCreateNew(BookCreateNewModel newBook);
         public void BookDelete(int id);
 
     }

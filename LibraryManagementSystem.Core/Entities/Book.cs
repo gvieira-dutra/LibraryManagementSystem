@@ -14,11 +14,12 @@ namespace LibraryManagementSystem.Core.Entities
         public string ISBN { get; private set; } = iSBN;
         public BookStatus Availability { get; private set; } = BookStatus.Available;
         public int PublicationYear { get; private set; } = publicationYear;
-        public List<Loan> Loans { get; private set; }
+
         public void BookSetAvailable()
         {
             Availability = BookStatus.Available;
         }
+
         public void BookSetUnavailable()
         {
             Availability = BookStatus.Unavailable;
