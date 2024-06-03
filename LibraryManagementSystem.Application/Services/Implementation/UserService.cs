@@ -1,17 +1,23 @@
-﻿using LibraryManagementSystem.Application.Services.Interfaces;
+﻿using Dapper;
+using LibraryManagementSystem.Application.Services.Interfaces;
 using LibraryManagementSystem.Application.ViewModels;
 using LibraryManagementSystem.Core.Entities;
 using LibraryManagementSystem.Infrastructure.Persistence;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LibraryManagementSystem.Application.Services.Implementation
 {
     public class UserService : IUserService
     {
         private readonly LibMgmtSysDbContext _dbContext;
+        private readonly string _connectionString;
 
-        public UserService(LibMgmtSysDbContext dbContext)
+        public UserService(LibMgmtSysDbContext dbContext, IConfiguration configuration)
         {
             _dbContext= dbContext;
+            _connectionString= configuration.GetConnectionString("LibraryMgmtSysCs");
         }
 
 
@@ -20,17 +26,19 @@ namespace LibraryManagementSystem.Application.Services.Implementation
             var user = new User(model.Username, model.FullName, model.Email);
 
             _dbContext.Users.Add(user);
+            _dbContext.SaveChanges();
 
             return user.Id;
         }
 
         public List<UserViewModel>? UserGetAll(string query)
         {
-            var users = _dbContext.Users;
+
+            var users = _dbContext.Users.AsQueryable();
 
             if (!string.IsNullOrEmpty(query))
             {
-                users = (List<User>)users
+                users = users
                         .Where(u => u.FullName.Contains(query));
             }
 
@@ -41,15 +49,18 @@ namespace LibraryManagementSystem.Application.Services.Implementation
             return userVM ?? null;
         }
 
-        public UserDetailViewModel? UserGetById(int id)
+        public UserDetailViewModel UserGetById(int id)
         {
-            var user = _dbContext.Users.FirstOrDefault(u => u.Id == id);
 
-            if (user == null) {return null;}
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                sqlConnection.Open();
 
-            var userVM = new UserDetailViewModel(user.Username, user.FullName, user.Email);
+                var script = "SELECT Username, FullName, Email " +
+                             "FROM Users WHERE Id = @id";
 
-            return userVM ?? null;
+                return sqlConnection.QueryFirstOrDefault<UserDetailViewModel>(script, new { id });
+            }
         }
     }
 }
