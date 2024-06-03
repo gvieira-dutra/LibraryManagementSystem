@@ -1,6 +1,8 @@
 ﻿using LibraryManagementSystem.API.Models;
+using LibraryManagementSystem.Application.Commands.BookCreateNew;
 using LibraryManagementSystem.Application.Services.Interfaces;
 using LibraryManagementSystem.Application.ViewModels;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagementSystem.API.Controller
@@ -9,10 +11,11 @@ namespace LibraryManagementSystem.API.Controller
     public class BookController : ControllerBase
     {
         private readonly IBookService _bookService;
-
-        public BookController(IBookService bookService)
+        private readonly IMediator _mediator;
+        public BookController(IBookService bookService, IMediator mediator)
         {
             _bookService = bookService;
+            _mediator = mediator;
         }
 
         // api/bookgetall/query?query string
@@ -34,16 +37,16 @@ namespace LibraryManagementSystem.API.Controller
         }
 
         [HttpPost]
-        public IActionResult BookCreateNew([FromBody] BookCreateNewModel newBook)
+        public async Task<IActionResult> BookCreateNew([FromBody] BookCreateNewCommand command)
         {
-            if (newBook == null)
+            if (command == null)
             {
                 return BadRequest();
             }
 
-            var id = _bookService.BookCreateNew(newBook);
+            var id = await _mediator.Send(command);
 
-            return CreatedAtAction(nameof(BookGetById), new { id }, newBook);
+            return CreatedAtAction(nameof(BookGetById), new { id }, command);
         }
 
         // api/delete/1
