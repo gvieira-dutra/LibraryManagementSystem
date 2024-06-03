@@ -34,9 +34,9 @@ namespace LibraryManagementSystem.API.Controller
         }
 
         [HttpGet("user/{id}")]
-        public IActionResult LoanGetByUserId(int userId)
+        public IActionResult LoanGetByUserId(int id)
         {
-            var loans = _loanService.LoanGetByUserId(userId);
+            var loans = _loanService.LoanGetByUserId(id);
 
             return Ok(loans);
         }
@@ -52,6 +52,13 @@ namespace LibraryManagementSystem.API.Controller
             var id = _loanService.LoanCreate(newLoan);
 
             return CreatedAtAction(nameof(LoanCreate), id, newLoan);
+        }
+        [HttpPost("end/{id}")]
+        public IActionResult LoanEnd(int id)
+        {
+            var message = _loanService.LoanEnd(id);
+
+            return Ok(message);
         }
 
         [HttpPost("update")]
