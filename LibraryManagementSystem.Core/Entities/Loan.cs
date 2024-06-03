@@ -19,7 +19,9 @@ namespace LibraryManagementSystem.Core.Entities
         }
 
         public int UserId { get; private set; }
+        public User User { get; private set; }
         public int BookId { get; private set; }
+        public Book Book { get; private set; }
         public LoanStatus LoanCurrStatus { get; private set; }
         public DateTime LoanStartDate { get; private set; }
         public DateTime LoanFinishDate { get; private set; }
@@ -30,5 +32,19 @@ namespace LibraryManagementSystem.Core.Entities
             BookId = bookId;
         }
 
+        public void LoanSetActive()
+        {
+            LoanCurrStatus = LoanStatus.Active;
+        }
+
+        public void LoanSetReturned()
+        {
+            LoanCurrStatus = LoanStatus.Returned;
+        }
+
+        public void LoanSetLate()
+        {
+            LoanCurrStatus = LoanStatus.Late;
+        }
     }
 }

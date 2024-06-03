@@ -8,8 +8,8 @@ namespace LibraryManagementSystem.Core.Enums
 {
     public enum LoanStatus
     {
-        Active = 0,
-        Returned = 1,
-        Late = 2
+        Active = 1,
+        Returned = 2,
+        Late = 3
     }
 }
