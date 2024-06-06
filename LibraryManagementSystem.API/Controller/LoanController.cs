@@ -1,8 +1,10 @@
-﻿using LibraryManagementSystem.API.Models;
-using LibraryManagementSystem.Application.Services.Implementation;
-using LibraryManagementSystem.Application.Services.Interfaces;
-using LibraryManagementSystem.Application.ViewModels;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using LibraryManagementSystem.Application.Commands.LoanCreate;
+using LibraryManagementSystem.Application.Commands.LoanEnd;
+using LibraryManagementSystem.Application.Commands.LoanUpdate;
+using LibraryManagementSystem.Application.Queries.LoanGetAll;
+using LibraryManagementSystem.Application.Queries.LoanGetById;
+using LibraryManagementSystem.Application.Queries.LoanGetByUserId;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagementSystem.API.Controller
@@ -10,68 +12,75 @@ namespace LibraryManagementSystem.API.Controller
     [Route("api/loan")]
     public class LoanController : ControllerBase
     {
-        private readonly ILoanService _loanService;
+        private readonly IMediator _mediator;
 
-        public LoanController(ILoanService loanService)
+        public LoanController(IMediator mediator)
         {
-            _loanService = loanService;
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public IActionResult LoanGetAll()
+        public async Task<IActionResult> LoanGetAll()
         {
-            var loans = _loanService.LoanGetAll();
+            var command = new LoanGetAllQuery();
+
+            var loans = await _mediator.Send(command);
 
             return Ok(loans);
         }
 
         [HttpGet("{id}")]
-        public IActionResult LoanGetById(int id)
+        public async Task<IActionResult >LoanGetById(int id)
         {
-            var loan = _loanService.LoanGetById(id);
+            var command = new LoanGetByIdQuery(id);
+            var loan = await _mediator.Send(command);
 
             return Ok(loan);
         }
 
         [HttpGet("user/{id}")]
-        public IActionResult LoanGetByUserId(int id)
+        public async Task<IActionResult> LoanGetByUserId(int id)
         {
-            var loans = _loanService.LoanGetByUserId(id);
+            var command = new LoanGetByUserIdQuery(id);
+
+            var loans = await _mediator.Send(command);
 
             return Ok(loans);
         }
         
         [HttpPost("create")]
-        public IActionResult LoanCreate([FromBody] LoanCreateModel newLoan)
+        public async Task<IActionResult> LoanCreate([FromBody] LoanCreateCommand command)
         {
-            if (newLoan == null)
+            if (command == null)
             {
                 return BadRequest();
             }
 
-            var id = _loanService.LoanCreate(newLoan);
+            var id = await _mediator.Send(command);
 
-            return CreatedAtAction(nameof(LoanCreate), id, newLoan);
+            return CreatedAtAction(nameof(LoanCreate), id, command);
         }
         [HttpPost("end/{id}")]
-        public IActionResult LoanEnd(int id)
+        public async Task<IActionResult> LoanEnd(int id)
         {
-            var message = _loanService.LoanEnd(id);
+            var task = new LoanEndCommand(id);
+
+            var message = await _mediator.Send(task);
 
             return Ok(message);
         }
 
         [HttpPost("update")]
-        public IActionResult LoanUpdate([FromBody] LoanUpdateModel updateLoan)
+        public async Task<IActionResult> LoanUpdate([FromBody] LoanUpdateCommand command)
         {
-            if(updateLoan == null)
+            if(command == null)
             {
                 return BadRequest();
             }
 
-            var id = _loanService.LoanUpdate(updateLoan);
+            var id = await _mediator.Send(command);
 
-            return CreatedAtAction(nameof(LoanCreate), id, updateLoan);
+            return CreatedAtAction(nameof(LoanCreate), id, command);
         }
 
     }

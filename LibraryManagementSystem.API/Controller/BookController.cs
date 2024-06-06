@@ -1,7 +1,7 @@
-﻿using LibraryManagementSystem.API.Models;
-using LibraryManagementSystem.Application.Commands.BookCreateNew;
-using LibraryManagementSystem.Application.Services.Interfaces;
-using LibraryManagementSystem.Application.ViewModels;
+﻿using LibraryManagementSystem.Application.Commands.BookCreateNew;
+using LibraryManagementSystem.Application.Commands.BookDelete;
+using LibraryManagementSystem.Application.Queries.BookGetOne;
+using LibraryManagementSystem.Application.Queries.BookGetAll;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,28 +10,30 @@ namespace LibraryManagementSystem.API.Controller
     [Route("api/books")]
     public class BookController : ControllerBase
     {
-        private readonly IBookService _bookService;
         private readonly IMediator _mediator;
-        public BookController(IBookService bookService, IMediator mediator)
+        public BookController(IMediator mediator)
         {
-            _bookService = bookService;
             _mediator = mediator;
         }
 
         // api/bookgetall/query?query string
         [HttpGet]
-        public IActionResult BookGetAll (string query)
+        public async Task<IActionResult> BookGetAll (string query)
         {
-            var books = _bookService.BookGetAll(query);
+            var command = new BookGetAllQuery(query);
+
+            var books = await _mediator.Send(command);
 
             return Ok(books);
         }
 
         // api/books/id
         [HttpGet("{id}")]
-        public IActionResult BookGetById(int id)
+        public async Task<IActionResult> BookGetById(int id)
         {
-            var book = _bookService.BookGetOne(id);
+            var command = new BookGetOneQuery(id);
+
+            var book = await _mediator.Send(command);
 
             return Ok(book);
         }
@@ -51,9 +53,11 @@ namespace LibraryManagementSystem.API.Controller
 
         // api/delete/1
         [HttpDelete("{id}")]
-        public IActionResult BookDelete(int id)
+        public async Task<IActionResult> BookDelete(int id)
         {
-            _bookService.BookDelete(id);
+            var command = new BookDeleteCommand(id);
+
+            await _mediator.Send(command);
 
             return NoContent();
 

@@ -1,6 +1,7 @@
-﻿using LibraryManagementSystem.API.Models;
-using LibraryManagementSystem.Application.Services.Interfaces;
-using LibraryManagementSystem.Application.ViewModels;
+﻿using LibraryManagementSystem.Application.Commands.UserCreateNew;
+using LibraryManagementSystem.Application.Queries.UserGetAll;
+using LibraryManagementSystem.Application.Queries.UserGetById;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagementSystem.API.Controller
@@ -8,40 +9,45 @@ namespace LibraryManagementSystem.API.Controller
     [Route("api/user")]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IMediator _mediator;
 
-        public UserController(IUserService userService)
+        public UserController(IMediator mediator)
         {
-            _userService = userService;
-        }
-
-        [HttpPost]
-        public IActionResult UserCreateNew([FromBody] UserCreateNewModel newUser)
-        {
-            if (newUser == null)
-            {
-                return BadRequest();
-            }
-
-            var id = _userService.UserCreateNew(newUser);
-
-            return CreatedAtAction(nameof(UserCreateNew), id, newUser);
+            _mediator = mediator;
         }
 
         [HttpGet]
-        public IActionResult UserGetAll(string query)
+        public async Task<IActionResult> UserGetAll(string query)
         {
-            var users = _userService.UserGetAll(query);
+            var command = new UserGetAllQuery(query);
+
+            var users = await _mediator.Send(command);
 
             return Ok(users);
         }
 
         [HttpGet("{id}")]
-        public IActionResult UserGetById(int id)
+        public async Task<IActionResult> UserGetById(int id)
         {
-            var user = _userService.UserGetById(id);
+            var command = new UserGetByIdQuery(id);
+
+            var user = await _mediator.Send(command);
 
             return Ok(user);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UserCreateNew([FromBody] UserCreateCommand command)
+        {
+            if (command == null)
+            {
+                return BadRequest();
+            }
+
+            var id = await _mediator.Send(command);
+
+            return CreatedAtAction(nameof(UserCreateNew), id, command);
+        }
+
     }
 }
