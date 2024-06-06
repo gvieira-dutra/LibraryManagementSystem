@@ -1,6 +1,4 @@
 using LibraryManagementSystem.Application.Commands.BookCreateNew;
-using LibraryManagementSystem.Application.Services.Implementation;
-using LibraryManagementSystem.Application.Services.Interfaces;
 using LibraryManagementSystem.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,10 +15,6 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("LibraryMgmtSysCs");
 
 builder.Services.AddDbContext<LibMgmtSysDbContext>(s => s.UseSqlServer(connectionString));
-
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ILoanService, LoanService>();
 
 builder.Services.AddMediatR(typeof(BookCreateNewCommand));
 
