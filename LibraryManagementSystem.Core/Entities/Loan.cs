@@ -1,9 +1,4 @@
 ﻿using LibraryManagementSystem.Core.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagementSystem.Core.Entities
 {
@@ -32,11 +27,6 @@ namespace LibraryManagementSystem.Core.Entities
             BookId = bookId;
         }
 
-        public void LoanSetActive()
-        {
-            LoanCurrStatus = LoanStatus.Active;
-        }
-
         public void LoanSetReturned()
         {
             LoanCurrStatus = LoanStatus.Returned;
@@ -46,5 +36,14 @@ namespace LibraryManagementSystem.Core.Entities
         {
             LoanCurrStatus = LoanStatus.Late;
         }
+
+        public void LoanCheckLate()
+        {
+            if( LoanFinishDate < DateTime.Now)
+            {
+                LoanSetLate();
+            }
+        }
+
     }
 }
