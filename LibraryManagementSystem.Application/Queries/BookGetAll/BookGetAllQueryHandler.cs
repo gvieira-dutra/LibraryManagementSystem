@@ -1,35 +1,32 @@
 ﻿using LibraryManagementSystem.Application.ViewModels;
 using LibraryManagementSystem.Core.Enums;
-using LibraryManagementSystem.Infrastructure.Persistence;
+using LibraryManagementSystem.Core.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace LibraryManagementSystem.Application.Queries.BookGetAll
 {
     public class BookGetAllQueryHandler : IRequestHandler<BookGetAllQuery, List<BookViewModel>>
     {
-        private readonly LibMgmtSysDbContext _dbContext;
+        private readonly IBookRepository _bookRepository;
 
-        public BookGetAllQueryHandler(LibMgmtSysDbContext dbContext)
+        public BookGetAllQueryHandler(IBookRepository bookRepository)
         {
-            _dbContext = dbContext;
+            _bookRepository = bookRepository;
         }
 
         public async Task<List<BookViewModel>> Handle(BookGetAllQuery request, CancellationToken cancellationToken)
         {
-            var books = _dbContext.Books.AsQueryable();
+            var books = await _bookRepository.BookGetAllAsync(request.query);
 
-            books = books.Where(b => b.Availability != BookStatus.NotInTheSystem);
+            books = books.Where(b => b.Availability != BookStatus.NotInTheSystem).ToList();
 
             if (!string.IsNullOrEmpty(request.query))
             {
-                books = books.Where(b => b.Title.Contains(request.query));
+                books = books.Where(b => b.Title.Contains(request.query)).ToList();
             }
 
-            var booksVM = await books.Select(b => new BookViewModel(b.Title, b.Author, b.PublicationYear))
-                        .ToListAsync();
+            var booksVM = books.Select(b => new BookViewModel(b.Title, b.Author, b.PublicationYear)).ToList();
 
             return booksVM;
         }

@@ -1,34 +1,41 @@
 ﻿using LibraryManagementSystem.Core.Entities;
-using LibraryManagementSystem.Infrastructure.Persistence;
+using LibraryManagementSystem.Core.Repositories;
 using MediatR;
 
 namespace LibraryManagementSystem.Application.Commands.LoanCreate
 {
-    public class LoanCreateCommandHandler : IRequestHandler<LoanCreateCommand, int>
+    public class LoanCreateCommandHandler : IRequestHandler<LoanCreateCommand, string>
     {
-        private readonly LibMgmtSysDbContext _dbContext;
+        private readonly ILoanRepository _loanRepository;
+        private readonly IBookRepository _bookRepository;
+        private readonly IUserRepository _userRepository;
 
-        public LoanCreateCommandHandler(LibMgmtSysDbContext dbContext)
+        public LoanCreateCommandHandler(ILoanRepository loanRepository)
         {
-            _dbContext = dbContext;
+            _loanRepository = loanRepository;
         }
 
-        public async Task<int> Handle(LoanCreateCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(LoanCreateCommand request, CancellationToken cancellationToken)
         {
-            var book = _dbContext.Books.SingleOrDefault(b => b.Id == request.IdBook);
+            var user = await _userRepository.UserGetByIdAsync(request.IdUser);
+            var book = await _bookRepository.BookGetOneAsync(request.IdBook);
 
-            if (book != null && book.Availability == Core.Enums.BookStatus.Available)
+            if (book != null &&
+                user != null &&
+                book.Availability == Core.Enums.BookStatus.Available)
             {
                 var loan = new Loan(request.IdUser, request.IdBook);
-                await _dbContext.Loans.AddAsync(loan);
 
+                await _loanRepository.LoanCreateAsync(loan);
+                
                 book.BookSetUnavailable();
-                await _dbContext.SaveChangesAsync();
+                
+                await _loanRepository.LoanSaveChangesAsync();
 
-                return loan.Id;
+                return $"Enjoy your book! Loan id( {loan.Id} )";
             }
 
-            return 0;
+            return "Something went wrong, we could not create this loan.";
         }
     }
 }

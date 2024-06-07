@@ -56,16 +56,7 @@ namespace LibraryManagementSystem.API.Controller
                 return BadRequest();
             }
 
-            var id = await _mediator.Send(command);
-
-            return CreatedAtAction(nameof(LoanCreate), id, command);
-        }
-        [HttpPost("end/{id}")]
-        public async Task<IActionResult> LoanEnd(int id)
-        {
-            var task = new LoanEndCommand(id);
-
-            var message = await _mediator.Send(task);
+            var message = await _mediator.Send(command);
 
             return Ok(message);
         }
@@ -81,6 +72,16 @@ namespace LibraryManagementSystem.API.Controller
             var id = await _mediator.Send(command);
 
             return CreatedAtAction(nameof(LoanCreate), id, command);
+        }
+
+        [HttpDelete("end/{id}")]
+        public async Task<IActionResult> LoanEnd(int id)
+        {
+            var task = new LoanEndCommand(id);
+
+            var message = await _mediator.Send(task);
+
+            return Ok(message);
         }
 
     }

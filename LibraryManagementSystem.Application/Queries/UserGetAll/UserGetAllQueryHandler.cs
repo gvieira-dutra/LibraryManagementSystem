@@ -1,32 +1,29 @@
 ﻿using LibraryManagementSystem.Application.ViewModels;
-using LibraryManagementSystem.Infrastructure.Persistence;
+using LibraryManagementSystem.Core.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace LibraryManagementSystem.Application.Queries.UserGetAll
 {
     public class UserGetAllQueryHandler : IRequestHandler<UserGetAllQuery, List<UserViewModel>>
     {
-        private readonly LibMgmtSysDbContext _dbContext;
-        private readonly string _connectionString;
+        private readonly IUserRepository _userRepository;
 
-        public UserGetAllQueryHandler(LibMgmtSysDbContext dbContext, IConfiguration configuration)
+        public UserGetAllQueryHandler(IUserRepository userRepository)
         {
-            _dbContext = dbContext;
-            _connectionString = configuration.GetConnectionString("LibraryMgmtSysCs");
+            _userRepository = userRepository;
         }
         public async Task<List<UserViewModel>> Handle(UserGetAllQuery request, CancellationToken cancellationToken)
         {
-            var users = _dbContext.Users.AsQueryable();
+            var users = await _userRepository.UserGetAllAsync();
 
             if (!string.IsNullOrEmpty(request.query))
             {
                 users = users
-                        .Where(u => u.FullName.Contains(request.query));
+                        .Where(u => u.FullName.Contains(request.query)).ToList();
             }
 
-            var userVM = await users.Select(u => new UserViewModel(u.Username, u.FullName, u.Email)).ToListAsync();
+            var userVM = users.Select(u => new UserViewModel(u.Username, u.FullName, u.Email)).ToList();
 
             return userVM;
         }

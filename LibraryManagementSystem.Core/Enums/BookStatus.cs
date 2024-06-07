@@ -3,8 +3,8 @@ namespace LibraryManagementSystem.Core.Enums
 {
     public enum BookStatus
     {
-        Unavailable = 1,
-        Available = 2,
+        Available = 1,
+        Unavailable = 2,
         NotInTheSystem = 3,
     }
 }

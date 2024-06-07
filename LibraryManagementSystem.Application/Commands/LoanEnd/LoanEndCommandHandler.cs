@@ -1,23 +1,20 @@
-﻿using LibraryManagementSystem.Infrastructure.Persistence;
+﻿using LibraryManagementSystem.Core.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementSystem.Application.Commands.LoanEnd
 {
     public class LoanEndCommandHandler : IRequestHandler<LoanEndCommand, string>
     {
-        private readonly LibMgmtSysDbContext _dbContext;
+        private readonly ILoanRepository _loanRepository;
 
-        public LoanEndCommandHandler(LibMgmtSysDbContext dbContext)
+        public LoanEndCommandHandler(ILoanRepository loanRepository)
         {
-            _dbContext = dbContext;
+            _loanRepository = loanRepository;
         }
         public async Task<string> Handle(LoanEndCommand request, CancellationToken cancellationToken)
         {
 
-            var loan = _dbContext.Loans
-                .Include(l => l.Book)
-                .SingleOrDefault(l => l.Id == request.Id);
+            var loan = await _loanRepository.LoanGetByIdAsync(request.Id);
 
 
             var message = "";
@@ -38,9 +35,8 @@ namespace LibraryManagementSystem.Application.Commands.LoanEnd
                 loan.LoanSetReturned();
                 loan.Book.BookSetAvailable();
 
-                await _dbContext.SaveChangesAsync();
+                await _loanRepository.LoanSaveChangesAsync();
             }
-
             return message;
         }
     }

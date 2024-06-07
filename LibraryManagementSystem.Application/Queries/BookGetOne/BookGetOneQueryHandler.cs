@@ -1,23 +1,17 @@
 ﻿using LibraryManagementSystem.Application.ViewModels;
-using LibraryManagementSystem.Infrastructure.Persistence;
+using LibraryManagementSystem.Core.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace LibraryManagementSystem.Application.Queries.BookGetOne
 {
 
-    public class BookGetOneQueryHandler : IRequestHandler<BookGetOneQuery, BookViewModel>
+    public class BookGetOneQueryHandler(IBookRepository bookRepository) : IRequestHandler<BookGetOneQuery, BookViewModel>
     {
-        private readonly LibMgmtSysDbContext _dbContext;
-        public BookGetOneQueryHandler(LibMgmtSysDbContext dbContext, IConfiguration configuration)
-        {
-            _dbContext = dbContext;
-        }
+        private readonly IBookRepository _bookRepository = bookRepository;
 
         public async Task<BookViewModel> Handle(BookGetOneQuery request, CancellationToken cancellationToken)
         {
-            var book = await _dbContext.Books.SingleOrDefaultAsync(b => b.Id == request.Id);
+            var book = await _bookRepository.BookGetOneAsync(request.Id);
 
             var bookViewModel = new BookViewModel(book.Title, book.Author, book.PublicationYear);
 

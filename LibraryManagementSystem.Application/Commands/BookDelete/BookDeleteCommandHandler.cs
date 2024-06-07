@@ -1,41 +1,24 @@
-﻿using Dapper;
-using LibraryManagementSystem.Infrastructure.Persistence;
+﻿using LibraryManagementSystem.Core.Repositories;
 using MediatR;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
 namespace LibraryManagementSystem.Application.Commands.BookDelete
 {
 
-    public class BookDeleteCommandHandler : IRequestHandler<BookDeleteCommand, Unit>
+    public class BookDeleteCommandHandler(IBookRepository bookRepository) : IRequestHandler<BookDeleteCommand, Unit>
     {
-        private readonly LibMgmtSysDbContext _dbContext;
-        private readonly string _connectionString ;
-
-        public BookDeleteCommandHandler(LibMgmtSysDbContext dbContext, IConfiguration config)
-        {
-            _dbContext = dbContext;
-            _connectionString = config.GetConnectionString("LibraryMgmtSysCs");
-        }
+        private readonly IBookRepository _bookRepository = bookRepository;
 
         public async Task<Unit> Handle(BookDeleteCommand request, CancellationToken cancellationToken)
         {            
-            var book = _dbContext.Books.SingleOrDefault(b => b.Id == request.Id);
+            var book = await _bookRepository.BookGetOneAsync(request.Id);
 
                 if (book != null)
                 {
                     book.BookSetNotInTheSystem();
 
-                    using (var sqlConnection = new SqlConnection(_connectionString))
-                    {
-                        sqlConnection.Open();
-
-                        var script = "UPDATE Books SET Availability = @availability WHERE Id = @id";
-
-                        await sqlConnection.ExecuteAsync(script, new { availability = book.Availability, request.Id});
-                    }
-
+                    await _bookRepository.BookDeleteAsync(book);
                 }
+
             return Unit.Value;
         }
 

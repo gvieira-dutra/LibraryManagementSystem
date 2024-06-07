@@ -3,31 +3,24 @@ using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using LibraryManagementSystem.Application.ViewModels;
+using LibraryManagementSystem.Core.Repositories;
 
 namespace LibraryManagementSystem.Application.Queries.UserGetById
 {
     public class UserGetByIdQueryHandler : IRequestHandler<UserGetByIdQuery, UserDetailViewModel>
     {
-        private readonly string _connectionString;
+        private readonly IUserRepository _userRepository;
 
-        public UserGetByIdQueryHandler(IConfiguration configuration)
+        public UserGetByIdQueryHandler(IUserRepository userRepository)
         {
-            _connectionString = configuration.GetConnectionString("LibraryMgmtSysCs");
+            _userRepository = userRepository;
         }
         public async Task<UserDetailViewModel> Handle(UserGetByIdQuery request, CancellationToken cancellationToken)
         {
-            using (var sqlConnection = new SqlConnection(_connectionString))
-            {
-                sqlConnection.Open();
+            var user = await _userRepository.UserGetByIdAsync(request.Id);
 
-                var script = "SELECT Username, FullName, Email " +
-                             "FROM Users WHERE Id = @id";
+            return new UserDetailViewModel(user.Username, user.FullName, user.Email);
 
-
-                var user = await sqlConnection.QueryFirstOrDefaultAsync<UserDetailViewModel>(script, new { request.Id });
-
-                return user;
-            }
         }
     }
 }
