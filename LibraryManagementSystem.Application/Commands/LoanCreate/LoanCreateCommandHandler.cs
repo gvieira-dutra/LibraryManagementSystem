@@ -4,16 +4,11 @@ using MediatR;
 
 namespace LibraryManagementSystem.Application.Commands.LoanCreate
 {
-    public class LoanCreateCommandHandler : IRequestHandler<LoanCreateCommand, string>
+    public class LoanCreateCommandHandler(ILoanRepository loanRepository, IUserRepository userRepository, IBookRepository bookRepository) : IRequestHandler<LoanCreateCommand, string>
     {
-        private readonly ILoanRepository _loanRepository;
-        private readonly IBookRepository _bookRepository;
-        private readonly IUserRepository _userRepository;
-
-        public LoanCreateCommandHandler(ILoanRepository loanRepository)
-        {
-            _loanRepository = loanRepository;
-        }
+        private readonly ILoanRepository _loanRepository = loanRepository;
+        private readonly IBookRepository _bookRepository = bookRepository;
+        private readonly IUserRepository _userRepository = userRepository;
 
         public async Task<string> Handle(LoanCreateCommand request, CancellationToken cancellationToken)
         {
