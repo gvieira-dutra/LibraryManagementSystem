@@ -21,10 +21,16 @@ namespace LibraryManagementSystem.Core.Entities
         public DateTime LoanStartDate { get; private set; }
         public DateTime LoanFinishDate { get; private set; }
 
-        public void Update(int userId, int bookId)
+        public void Update(int userId, int bookId, Book book)
         {
+            if(BookId != bookId)
+            {
+                Book.BookSetAvailable();
+                BookId = bookId;
+                Book = book;
+                Book.BookSetUnavailable();
+            }
             UserId = userId;
-            BookId = bookId;
         }
 
         public void LoanSetReturned()
