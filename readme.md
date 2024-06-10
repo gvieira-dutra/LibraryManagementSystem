@@ -68,7 +68,10 @@ Alternatively, you can run the same command in a terminal.
 ### 5. Build the Solution
 In Visual Studio, go to Build > Build Solution or use the shortcut Ctrl+Shift+B.
 
-### 6. Apply Migrations
+### 6. Change Connection String
+On file appsettings.json, update the connection string to the name of the instance of your SQL Server Express.
+
+### 7. Apply Migrations
 
 ```sh
 dotnet ef database update
@@ -80,5 +83,5 @@ Ensure the dotnet-ef tool is installed globally if you encounter issues:
 dotnet tool install --global dotnet-ef
 ```
 
-### 7. Run the Application
+### 8. Run the Application
 To run the application, press F5 or click the Start button in Visual Studio.
